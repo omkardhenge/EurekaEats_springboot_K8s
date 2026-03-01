@@ -7,7 +7,6 @@
 ![Kubernetes](https://img.shields.io/badge/Kubernetes-1.28-blue.svg)
 ![AWS EKS](https://img.shields.io/badge/AWS-EKS-orange.svg)
 ![Netflix Eureka](https://img.shields.io/badge/Service%20Discovery-Eureka-yellow.svg)
-![License](https://img.shields.io/badge/License-MIT-yellow.svg)
 
 ## Overview
 
