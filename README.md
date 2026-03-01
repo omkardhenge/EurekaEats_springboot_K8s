@@ -22,7 +22,44 @@ This project demonstrates:
 - Container orchestration
 - RESTful API design
 - Kubernetes production configuration
+---
 
+# 📦 Prerequisites
+
+- JDK 21
+- Maven 3.8+
+- Docker
+- kubectl
+- AWS CLI configured
+- MongoDB Atlas account
+- Eureka Server
+
+---
+# 📁 Project Structure
+
+```
+order-service/
+├── src/main/java/com/codedecode/order/
+│   ├── controller/
+│   ├── service/
+│   ├── repo/
+│   ├── entity/
+│   ├── dto/
+│   ├── mapper/
+│   └── OrderMsApplication.java
+│
+├── src/main/resources/
+│   ├── application.yml
+│   ├── application-local.yml
+│   ├── application-dev.yml
+│   ├── static/
+│   ├── order-deployment.yaml
+│   └── order-service.yaml
+│
+├── Dockerfile
+├── pom.xml
+└── README.md
+```
 ---
 
 # 🏗 Architecture
@@ -94,7 +131,6 @@ This project demonstrates:
 ---
 
 ## 🛠 Tech Stack
-|-----------------------|--------------------------------------------------------------------------------|
 | Category              | Technology Stack                                                               |
 |-----------------------|--------------------------------------------------------------------------------|
 | Backend               | Java 21, Spring Boot 3.2.5, Spring Cloud (Eureka Client), Spring Data MongoDB  |
@@ -107,19 +143,6 @@ This project demonstrates:
 | Orchestration         | Kubernetes (EKS)                                                               |
 | Cloud Infrastructure  | AWS (EKS, ECR, IAM, VPC, LoadBalancer)                                         |
 | Version Control       | Git, GitHub                                                                    |
-|-----------------------|--------------------------------------------------------------------------------|
----
-
-# 📦 Prerequisites
-
-- JDK 21
-- Maven 3.8+
-- Docker
-- kubectl
-- AWS CLI configured
-- MongoDB Atlas account
-- Eureka Server
-
 ---
 
 # 🚀 Local Development Setup
@@ -158,12 +181,10 @@ spring:
 
 ## ⚙ Configuration Profiles
 
-|---------|--------------------|------------------------------------------------------------------|
 | Profile | Purpose            | Key Settings                                                     |
 |---------|--------------------|------------------------------------------------------------------|
 | local   | Local development  | MongoDB URI, Eureka disabled                                     |
 | dev     | EKS deployment     | Eureka enabled, cluster service URL configured                   |
-|---------|--------------------|------------------------------------------------------------------|
 
 ---
 
@@ -251,13 +272,11 @@ http://<EXTERNAL-IP>:8081
 
 ## 📡 API Endpoints
 
-|--------|--------------------|--------------------------|------------------------|---------------------------|
 | Method | Endpoint           | Description              | Request Body           | Response                  |
 |--------|--------------------|--------------------------|------------------------|---------------------------|
 | POST   | /order/saveOrder   | Place a new order        | OrderDTOFromFE (JSON)  | OrderDTO (201 Created)    |
 | POST   | /food/items        | Fetch all food items     | Empty JSON {}          | List of FoodItemDTO (200) |
 | POST   | /food/add          | Add new food item        | FoodItemDTO (JSON)     | FoodItemDTO (201 Created) |
-|--------|--------------------|--------------------------|------------------------|---------------------------|
 
 ---
 
@@ -309,32 +328,6 @@ src/main/resources/static/
 - Environment-based configuration
 
 ---
-
-# 📁 Project Structure
-
-```
-order-service/
-├── src/main/java/com/codedecode/order/
-│   ├── controller/
-│   ├── service/
-│   ├── repo/
-│   ├── entity/
-│   ├── dto/
-│   ├── mapper/
-│   └── OrderMsApplication.java
-│
-├── src/main/resources/
-│   ├── application.yml
-│   ├── application-local.yml
-│   ├── application-dev.yml
-│   ├── static/
-│   ├── order-deployment.yaml
-│   └── order-service.yaml
-│
-├── Dockerfile
-├── pom.xml
-└── README.md
-```
 
 # 👤 Author
 
