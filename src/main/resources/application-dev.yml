@@ -1,0 +1,11 @@
+eureka:
+  instance:
+    prefer-ip-address: true
+  client:
+    service-url:
+      defaultZone: http://eureka-service:8761/eureka
+
+spring:
+  data:
+    mongodb:
+      uri: mongodb+srv://omkardhenge2004_db_user:X3tFo1vm7UinLO1U@new-cluster.3mwk2my.mongodb.net/orderdb?retryWrites=true&w=majority

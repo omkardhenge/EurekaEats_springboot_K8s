@@ -1,0 +1,9 @@
+server:
+  port: 9094
+
+spring:
+  profiles:
+    active: dev
+  application:
+    name: ORDER-SERVICE
+

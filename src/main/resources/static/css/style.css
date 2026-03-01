@@ -1,0 +1,147 @@
+/* Google Font */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap');
+
+body {
+    font-family: 'Poppins', sans-serif;
+    background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+    min-height: 100vh;
+}
+
+/* NAVBAR */
+.navbar {
+    background: linear-gradient(90deg, #141e30, #243b55);
+    padding: 15px 0;
+}
+
+.navbar-brand {
+    font-size: 1.6rem;
+    font-weight: 600;
+    letter-spacing: 1px;
+}
+
+/* FOOD CARDS - Uniform sizing */
+.card {
+    border: none;
+    border-radius: 18px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    background: #ffffff;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+    height: 100%; /* Make all cards same height within row */
+    display: flex;
+    flex-direction: column;
+}
+
+/* Image container with fixed aspect ratio */
+.card-img-top {
+    width: 100%;
+    height: 200px; /* Fixed height for uniformity */
+    object-fit: cover; /* Crop image to fit without distortion */
+    transition: transform 0.4s ease;
+}
+
+.card:hover .card-img-top {
+    transform: scale(1.08);
+}
+
+.card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 15px 30px rgba(0,0,0,0.15);
+}
+
+.card-body {
+    padding: 20px;
+    flex-grow: 1; /* Allows body to expand and fill space */
+    display: flex;
+    flex-direction: column;
+}
+
+.card-title {
+    font-weight: 600;
+    font-size: 1.2rem;
+    margin-bottom: 8px;
+    /* Truncate long names */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.card-text {
+    font-weight: 500;
+    color: #28a745;
+    font-size: 1.1rem;
+    margin-bottom: 8px;
+}
+
+/* Item description - limit to 2 lines */
+.card-text.small {
+    font-size: 0.85rem;
+    color: #6c757d;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    margin-bottom: 10px;
+    min-height: 40px; /* Reserve space for 2 lines */
+}
+
+/* Badge styling */
+.badge {
+    align-self: flex-start;
+    margin-bottom: 10px;
+}
+
+/* Quantity input and Add button row */
+.d-flex.justify-content-between {
+    margin-top: auto; /* Push to bottom of card */
+    align-items: center;
+    gap: 8px;
+}
+
+.quantity-input {
+    width: 70px;
+    text-align: center;
+}
+
+/* Cart badge */
+#cart-count {
+    font-size: 0.7rem;
+    padding: 0.25rem 0.5rem;
+}
+
+/* Modal table */
+.table th, .table td {
+    vertical-align: middle;
+}
+
+/* Cart modal buttons */
+.btn-sm {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.875rem;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .card-img-top {
+        height: 180px;
+    }
+    
+    .card-title {
+        font-size: 1.1rem;
+    }
+    
+    .quantity-input {
+        width: 60px;
+    }
+}
+
+/* Ensure cards in a row have equal height */
+.row {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.row > [class*='col-'] {
+    display: flex;
+    flex-direction: column;
+}
