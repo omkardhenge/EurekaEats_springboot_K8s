@@ -14,7 +14,7 @@ Order Service is a production-ready cloud-native microservice built using Spring
 It handles food ordering operations, registers with Eureka for service discovery, and is containerized with Docker and deployed on AWS EKS for scalability and high availability.
 
 ---
-#Note:- The the link deployed app is disabled because aws services cost is very high.
+#Note:- The link of deployed app is disabled because aws services cost is very high.
 ---
 
 This project demonstrates:
