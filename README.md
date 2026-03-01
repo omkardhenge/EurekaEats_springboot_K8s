@@ -19,22 +19,22 @@ It handles food ordering operations, registers with Eureka for service discovery
 ## Website Screenshots
 
 ### Home Page
-![Home Page](src/screenshot/i1.png "Home Page")
+![Home Page](src/screenshots/i1.png "Home Page")
 
 ### Summary Table
-![Summary Table](src/screenshot/i2.png "Summary Table")
+![Summary Table](src/screenshots/i2.png "Summary Table")
 
 ### Order Place
-![Order Place](src/screenshot/i3.png "Order Place")
+![Order Place](src/screenshots/i3.png "Order Place")
 
 ### AWS ECR
-![aws](src/screenshot/aws.png "AWS ECR")
+![aws](src/screenshots/aws.png "AWS ECR")
 
 ### Eureka Dashboard
-![Table](src/screenshot/e.png "Eureka Dashboard")
+![Table](src/screenshots/e.png "Eureka Dashboard")
 
 ### Data added to MongoDB
-![data](src/screenshot/m.png "Data Added to MongoDB")
+![data](src/screenshots/m.png "Data Added to MongoDB")
 
 ---
 
