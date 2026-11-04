@@ -33,7 +33,6 @@ pipeline {
         stage('Docker Build') {
             steps {
                 bat '''
-                    minikube start
                     echo Checking Minikube...
                     where minikube
                     minikube status
