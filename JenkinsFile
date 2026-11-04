@@ -30,39 +30,29 @@ pipeline {
             }
         }
 
-stage('Docker Build') {
-    steps {
-        bat '''
-            echo Configuring Minikube environment...
+        stage('Docker Build') {
+            steps {
+                bat '''
+                    minikube start
+                    echo Checking Minikube...
+                    where minikube
+                    minikube status
 
-            set "USERPROFILE=C:\\Users\\Omkar Dhenge"
-            set "HOME=C:\\Users\\Omkar Dhenge"
-            set "MINIKUBE_HOME=C:\\Users\\Omkar Dhenge\\.minikube"
-            set "KUBECONFIG=C:\\Users\\Omkar Dhenge\\.kube\\config"
+                    set "MINIKUBE_HOME=C:\\Users\\Omkar Dhenge\\.minikube"
 
-            set "MINIKUBE_PROFILE=minikube"
+                    echo Configuring Minikube Docker environment...
+                    minikube docker-env --shell cmd > minikube-env.bat
 
-            echo Checking Minikube profile...
-            minikube profile minikube
+                    call minikube-env.bat
 
-            echo Updating Kubernetes context...
-            minikube update-context
+                    echo Checking Docker...
+                    docker info
 
-            echo Checking cluster...
-            minikube status --profile=minikube
-            kubectl get nodes
-
-            echo Configuring Docker...
-            minikube docker-env --profile=minikube --shell cmd > minikube-env.bat
-            call minikube-env.bat
-
-            docker info
-
-            echo Building Order Service...
-            docker build -t order-service:latest .
-        '''
-    }
-}
+                    echo Building Order Service image...
+                    docker build -t order-service:latest .
+                '''
+            }
+        }
 
         stage('Check Kubernetes') {
             steps {
