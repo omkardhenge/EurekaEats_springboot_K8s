@@ -36,6 +36,7 @@ pipeline {
         // 4. Build Docker image
         stage('Docker Build') {
             steps {
+				set "MINIKUBE_HOME=C:\\Users\\Omkar Dhenge\\.minikube"
                 bat '''
                     minikube docker-env --shell cmd > minikube-env.bat
                     call minikube-env.bat
