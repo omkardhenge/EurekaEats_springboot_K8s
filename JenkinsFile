@@ -33,35 +33,35 @@ pipeline {
 stage('Docker Build') {
     steps {
         bat '''
-            echo Checking Minikube installation...
-            where minikube
+            echo Configuring Minikube environment...
 
+            set "USERPROFILE=C:\\Users\\Omkar Dhenge"
+            set "HOME=C:\\Users\\Omkar Dhenge"
             set "MINIKUBE_HOME=C:\\Users\\Omkar Dhenge\\.minikube"
             set "KUBECONFIG=C:\\Users\\Omkar Dhenge\\.kube\\config"
 
-            echo Starting Minikube...
-            minikube start --driver=docker
+            set "MINIKUBE_PROFILE=minikube"
 
-            echo Refreshing Kubernetes context...
+            echo Checking Minikube profile...
+            minikube profile minikube
+
+            echo Updating Kubernetes context...
             minikube update-context
 
-            kubectl config use-context minikube
+            echo Starting Minikube...
+            minikube start --profile=minikube --driver=docker
 
-            echo Checking Kubernetes API...
-            kubectl cluster-info
+            echo Checking cluster...
+            minikube status --profile=minikube
+            kubectl get nodes
 
-            echo Checking Minikube status...
-            minikube status
-
-            echo Configuring Minikube Docker environment...
-            minikube docker-env --shell cmd > minikube-env.bat
-
+            echo Configuring Docker...
+            minikube docker-env --profile=minikube --shell cmd > minikube-env.bat
             call minikube-env.bat
 
-            echo Checking Docker...
             docker info
 
-            echo Building Order Service image...
+            echo Building Order Service...
             docker build -t order-service:latest .
         '''
     }
