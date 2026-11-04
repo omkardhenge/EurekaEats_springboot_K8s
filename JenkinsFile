@@ -13,18 +13,14 @@ pipeline {
         // 2. Build Spring Boot application
         stage('Build') {
             steps {
-                dir('order-service') {
                     bat 'mvn clean package -DskipTests'
-                }
             }
         }
 
         // 3. Run JUnit5 and Mockito tests
         stage('Test') {
             steps {
-                dir('order-service') {
                     bat 'mvn test'
-                }
             }
 
             post {
