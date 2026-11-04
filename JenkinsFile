@@ -1,27 +1,23 @@
-<<<<<<< HEAD
 pipeline {
     agent any
 
     stages {
 
-        // 1. Checkout source code
         stage('Checkout') {
             steps {
                 checkout scm
             }
         }
 
-        // 2. Build Spring Boot application
         stage('Build') {
             steps {
-                    bat 'mvn clean package -DskipTests'
+                bat 'mvn clean package -DskipTests'
             }
         }
 
-        // 3. Run JUnit5 and Mockito tests
         stage('Test') {
             steps {
-                    bat 'mvn test'
+                bat 'mvn test'
             }
 
             post {
@@ -34,69 +30,63 @@ pipeline {
             }
         }
 
-        // 4. Build Docker image
         stage('Docker Build') {
-   			 steps {
-        		bat '''
-            	echo Checking Minikube...
-            	where minikube
-            	minikube status
+            steps {
+                bat '''
+                    echo Checking Minikube...
+                    where minikube
+                    minikube status
 
-            	echo Checking Minikube Docker environment...
-            	set "MINIKUBE_HOME=C:\\Users\\Omkar Dhenge\\.minikube"
+                    set "MINIKUBE_HOME=C:\\Users\\Omkar Dhenge\\.minikube"
 
-            	minikube docker-env --shell cmd > minikube-env.bat
+                    echo Configuring Minikube Docker environment...
+                    minikube docker-env --shell cmd > minikube-env.bat
 
-            	echo Generated environment file:
-            	type minikube-env.bat
+                    call minikube-env.bat
 
-            	echo Loading Docker environment...
-            	call minikube-env.bat
+                    echo Checking Docker...
+                    docker info
 
-            	echo Checking Docker connection...
-            	docker info
-
-            	echo Building image...
-            	docker build -t order-service:latest .
-        	'''
-    }
-}
-		
-		stage('Check Kubernetes') {
-        	steps {
-        		bat '''
-            		set "KUBECONFIG=C:/Users/Omkar Dhenge/.kube/config"
-
-            		echo Checking Kubernetes context...
-            		kubectl config current-context
-
-            		echo Checking Kubernetes connection...
-            		kubectl cluster-info
-        		'''
-    }
+                    echo Building Order Service image...
+                    docker build -t order-service:latest .
+                '''
+            }
         }
-		
-// 5. Deploy to Minikube
-stage('Deploy') {
-    steps {
-        bat '''
-            set "KUBECONFIG=C:/Users/Omkar Dhenge/.kube/config"
 
-            echo Applying Kubernetes Service...
-            kubectl apply -f src/main/resources/order-service.yaml
+        stage('Check Kubernetes') {
+            steps {
+                bat '''
+                    set "KUBECONFIG=C:\\Users\\Omkar Dhenge\\.kube\\config"
 
-            echo Applying Kubernetes Deployment...
-            kubectl apply -f src/main/resources/order-deployment.yaml
+                    echo Checking Kubernetes context...
+                    kubectl config current-context
 
-            echo Waiting for deployment...
-            kubectl rollout status deployment/order-service --timeout=180s
+                    echo Checking Kubernetes connection...
+                    kubectl cluster-info
+                '''
+            }
+        }
 
-            echo Checking pods...
-            kubectl get pods
-        '''
-    	}
-	}
-}
+        stage('Deploy') {
+            steps {
+                bat '''
+                    set "KUBECONFIG=C:\\Users\\Omkar Dhenge\\.kube\\config"
+
+                    echo Applying Kubernetes Service...
+                    kubectl apply -f src/main/resources/order-service.yaml
+
+                    echo Applying Kubernetes Deployment...
+                    kubectl apply -f src/main/resources/order-deployment.yaml
+
+                    echo Waiting for deployment...
+                    kubectl rollout status deployment/order-service --timeout=180s
+
+                    echo Checking pods...
+                    kubectl get pods
+                '''
+            }
+        }
+    }
 
     post {
         success {
@@ -108,114 +98,3 @@ stage('Deploy') {
         }
     }
 }
-=======
-pipeline {
-    agent any
-
-    stages {
-
-        // 1. Checkout source code
-        stage('Checkout') {
-            steps {
-                checkout scm
-            }
-        }
-
-        // 2. Build Spring Boot application
-        stage('Build') {
-            steps {
-                    bat 'mvn clean package -DskipTests'
-            }
-        }
-
-        // 3. Run JUnit5 and Mockito tests
-        stage('Test') {
-            steps {
-                    bat 'mvn test'
-            }
-
-            post {
-                always {
-                    junit(
-                        testResults: '**/target/surefire-reports/*.xml',
-                        allowEmptyResults: true
-                    )
-                }
-            }
-        }
-
-        // 4. Build Docker image
-        stage('Docker Build') {
-   			 steps {
-        		bat '''
-            	echo Checking Minikube...
-            	where minikube
-            	minikube status
-
-            	echo Checking Minikube Docker environment...
-            	set "MINIKUBE_HOME=C:\\Users\\Omkar Dhenge\\.minikube"
-
-            	minikube docker-env --shell cmd > minikube-env.bat
-
-            	echo Generated environment file:
-            	type minikube-env.bat
-
-            	echo Loading Docker environment...
-            	call minikube-env.bat
-
-            	echo Checking Docker connection...
-            	docker info
-
-            	echo Building image...
-            	docker build -t order-service:latest .
-        	'''
-			}
-		}
-		
-		stage('Check Kubernetes') {
-        	steps {
-        		bat '''
-            		set "KUBECONFIG=C:/Users/Omkar Dhenge/.kube/config"
-
-            		echo Checking Kubernetes context...
-            		kubectl config current-context
-
-            		echo Checking Kubernetes connection...
-            		kubectl cluster-info
-        		'''
-    		}
-        }
-		
-		// 5. Deploy to Minikube
-		stage('Deploy') {
-    		steps {
-        		bat '''
-            		set "KUBECONFIG=C:/Users/Omkar Dhenge/.kube/config"
-
-            		echo Applying Kubernetes Service...
-            		kubectl apply -f src/main/resources/order-service.yaml
-
-            		echo Applying Kubernetes Deployment...
-            		kubectl apply -f src/main/resources/order-deployment.yaml
-
-            		echo Waiting for deployment...
-            		kubectl rollout status deployment/order-service --timeout=180s
-
-            		echo Checking pods...
-            		kubectl get pods
-        		'''
-    			}
-			}
-		}
-
-    	post {
-        	success {
-            	echo 'Order Service deployed successfully!'
-        }
-
-        failure {
-            		echo 'Pipeline failed. Check Jenkins console output.'
-        		}
-    }
-}
->>>>>>> 9c7a954 (comment added)
