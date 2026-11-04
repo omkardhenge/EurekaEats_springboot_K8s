@@ -1,0 +1,73 @@
+pipeline {
+    agent any
+
+    stages {
+
+        // 1. Checkout source code
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+
+        // 2. Build Spring Boot application
+        stage('Build') {
+            steps {
+                dir('order-service') {
+                    bat 'mvn clean package -DskipTests'
+                }
+            }
+        }
+
+        // 3. Run JUnit5 and Mockito tests
+        stage('Test') {
+            steps {
+                dir('order-service') {
+                    bat 'mvn test'
+                }
+            }
+
+            post {
+                always {
+                    junit(
+                        testResults: '**/target/surefire-reports/*.xml',
+                        allowEmptyResults: true
+                    )
+                }
+            }
+        }
+
+        // 4. Build Docker image
+        stage('Docker Build') {
+            steps {
+                bat '''
+                    minikube docker-env --shell cmd > minikube-env.bat
+                    call minikube-env.bat
+
+                    docker build -t order-service:latest .
+                '''
+            }
+        }
+
+        // 5. Deploy to Minikube
+        stage('Deploy') {
+            steps {
+                bat '''
+                    kubectl apply -f src/main/resources/order-service.yaml
+					kubectl apply -f src/main/resources/order-deployment.yaml
+                    kubectl rollout status deployment/order-service --timeout=180s
+                '''
+            }
+        }
+    }
+
+    post {
+        success {
+            echo 'Order Service deployed successfully!'
+        }
+
+        failure {
+            echo 'Pipeline failed. Check Jenkins console output.'
+        }
+    }
+}
