@@ -33,6 +33,7 @@ pipeline {
         stage('Docker Build') {
             steps {
                 bat '''
+                    minikube start
                     echo Checking Minikube...
                     where minikube
                     minikube status
@@ -83,6 +84,9 @@ pipeline {
 
                     echo Checking pods...
                     kubectl get pods
+                    start "Order Service" cmd /c kubectl port-forward svc/order-service 8081:8081
+                    start "Review Service" cmd /c kubectl port-forward svc/review-service 8082:8082
+                    start "Eureka Server" cmd /c kubectl port-forward svc/eureka-service 8761:8761
                 '''
             }
         }
