@@ -19,7 +19,7 @@ public class FoodItemController {
     @Autowired
     private FoodItemRepository foodItemRepository;
     
-    //get food itesm
+    //get food items
     @GetMapping("/items")
     public ResponseEntity<List<FoodItemDTO>> getAllFoodItems() {
 
