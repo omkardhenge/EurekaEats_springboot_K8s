@@ -44,10 +44,26 @@ pipeline {
                 '''
             }
         }
+		
+		stage('Check Kubernetes') {
+        	steps {
+        		bat '''
+            		set "KUBECONFIG=C:\\Users\\Omkar Dhenge\\.kube\\config"
 
+            		echo Checking Kubernetes context...
+            		kubectl config current-context
+
+            		echo Checking Kubernetes connection...
+            		kubectl cluster-info
+        		'''
+    }
+        }
+		
         // 5. Deploy to Minikube
         stage('Deploy') {
             steps {
+				set "KUBECONFIG=C:\Users\Omkar Dhenge\.kube\config"
+				
                 bat '''
                     kubectl apply -f src/main/resources/order-service.yaml
 					kubectl apply -f src/main/resources/order-deployment.yaml
