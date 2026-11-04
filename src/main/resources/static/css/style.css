@@ -7,7 +7,7 @@ body {
     min-height: 100vh;
 }
 
-/* NAVBAR */
+/* navbar */
 .navbar {
     background: linear-gradient(90deg, #141e30, #243b55);
     padding: 15px 0;
@@ -19,7 +19,7 @@ body {
     letter-spacing: 1px;
 }
 
-/* FOOD CARDS - Uniform sizing */
+/* FOOD CARDS */
 .card {
     border: none;
     border-radius: 18px;
@@ -73,7 +73,7 @@ body {
     margin-bottom: 8px;
 }
 
-/* Item description - limit to 2 lines */
+/* Item description */
 .card-text.small {
     font-size: 0.85rem;
     color: #6c757d;
@@ -82,7 +82,7 @@ body {
     -webkit-box-orient: vertical;
     overflow: hidden;
     margin-bottom: 10px;
-    min-height: 40px; /* Reserve space for 2 lines */
+    min-height: 40px; 
 }
 
 /* Badge styling */
@@ -135,7 +135,6 @@ body {
     }
 }
 
-/* Ensure cards in a row have equal height */
 .row {
     display: flex;
     flex-wrap: wrap;

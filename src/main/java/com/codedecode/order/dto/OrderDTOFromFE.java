@@ -12,7 +12,7 @@ import java.util.List;
 public class OrderDTOFromFE {
 
     private List<FoodItemDTO> foodItemsList;
+
     private Integer userId;
-    private Restaurant restaurant;
 
 }

@@ -1,7 +1,9 @@
 server:
   port: 8081
+
 spring:
-    application:
-      name: order-service
-profiles:
-    active: dev 
+  application:
+    name: order-service
+
+  profiles:
+    active: dev

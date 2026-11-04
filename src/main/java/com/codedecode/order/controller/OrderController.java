@@ -1,6 +1,6 @@
 package com.codedecode.order.controller;
-
-
+import com.codedecode.order.dto.ReviewDTO;
+import java.util.List;
 import com.codedecode.order.dto.OrderDTO;
 import com.codedecode.order.dto.OrderDTOFromFE;
 import com.codedecode.order.service.OrderService;
@@ -21,6 +21,13 @@ public class OrderController {
     public ResponseEntity<OrderDTO> saveOrder(@RequestBody OrderDTOFromFE orderDetails){
         OrderDTO orderSavedInDB = orderService.saveOrderInDb(orderDetails);
         return new ResponseEntity<>(orderSavedInDB, HttpStatus.CREATED);
+    }
+    
+    @GetMapping("/reviews/{foodId}")
+    public ResponseEntity<List<ReviewDTO>> getReviews(
+            @PathVariable Integer foodId) {
+
+        return ResponseEntity.ok(orderService.getReviews(foodId));
     }
 
 

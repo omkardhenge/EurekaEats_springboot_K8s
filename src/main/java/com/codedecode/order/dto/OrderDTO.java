@@ -12,7 +12,8 @@ import java.util.List;
 public class OrderDTO {
 
     private Integer orderId;
+
     private List<FoodItemDTO> foodItemsList;
-    private Restaurant restaurant;
-    private UserDTO userDTO;
+
+    private Integer userId;
 }

@@ -7,12 +7,16 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class UserDTO {
+public class ReviewDTO {
 
-    private int userId;
+    private Integer id;
+
+    private Integer foodId;
+
     private String userName;
-    private String userPassword;
-    private String address;
-    private String city;
+
+    private String foodItem;
+
+    private Integer rating;
 
 }

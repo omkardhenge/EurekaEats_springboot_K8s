@@ -7,18 +7,32 @@ spec:
   selector:
     matchLabels:
       app: order-service
+
   template:
     metadata:
       labels:
         app: order-service
+
     spec:
       containers:
         - name: order-service
-          image: 517392055937.dkr.ecr.ap-south-1.amazonaws.com/order-service:latest
+          image: order-service:latest
+          imagePullPolicy: Never
+
           ports:
             - containerPort: 8081
+
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "256Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+
           env:
             - name: SPRING_PROFILES_ACTIVE
-              value: "dev"          
+              value: "dev"
+
             - name: SERVER_PORT
               value: "8081"

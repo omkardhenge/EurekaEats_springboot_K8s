@@ -18,46 +18,57 @@ public class FoodItemController {
 
     @Autowired
     private FoodItemRepository foodItemRepository;
-
-    @PostMapping("/items")
+    
+    //get food itesm
+    @GetMapping("/items")
     public ResponseEntity<List<FoodItemDTO>> getAllFoodItems() {
+
         List<FoodItem> items = foodItemRepository.findAll();
+
         List<FoodItemDTO> dtos = items.stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
-        return new ResponseEntity<>(dtos, HttpStatus.OK);
+
+        return ResponseEntity.ok(dtos);
     }
 
     @PostMapping("/add")
     public ResponseEntity<FoodItemDTO> addFoodItem(@RequestBody FoodItemDTO foodItemDTO) {
+
         FoodItem item = convertToEntity(foodItemDTO);
+
         FoodItem saved = foodItemRepository.save(item);
+
         return new ResponseEntity<>(convertToDTO(saved), HttpStatus.CREATED);
     }
 
     private FoodItemDTO convertToDTO(FoodItem item) {
+
         FoodItemDTO dto = new FoodItemDTO();
+
         dto.setId(item.getId());
         dto.setItemName(item.getItemName());
         dto.setItemDescription(item.getItemDescription());
         dto.setVeg(item.isVeg());
         dto.setPrice(item.getPrice());
         dto.setImageUrl(item.getImageUrl());
-        dto.setRestaurantId(item.getRestaurantId());
         dto.setQuantity(item.getQuantity() != null ? item.getQuantity() : 1);
+
         return dto;
     }
 
     private FoodItem convertToEntity(FoodItemDTO dto) {
+
         FoodItem item = new FoodItem();
+
         item.setId(dto.getId());
         item.setItemName(dto.getItemName());
         item.setItemDescription(dto.getItemDescription());
         item.setVeg(dto.isVeg());
         item.setPrice(dto.getPrice());
         item.setImageUrl(dto.getImageUrl());
-        item.setRestaurantId(dto.getRestaurantId());
         item.setQuantity(dto.getQuantity());
+
         return item;
     }
 }
