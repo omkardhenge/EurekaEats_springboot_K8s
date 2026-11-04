@@ -35,16 +35,31 @@ pipeline {
 
         // 4. Build Docker image
         stage('Docker Build') {
-            steps {
-				set "MINIKUBE_HOME=C:\\Users\\Omkar Dhenge\\.minikube"
-                bat '''
-                    minikube docker-env --shell cmd > minikube-env.bat
-                    call minikube-env.bat
+   			 steps {
+        		bat '''
+            	echo Checking Minikube...
+            	where minikube
+            	minikube status
 
-                    docker build -t order-service:latest .
-                '''
-            }
-        }
+            	echo Checking Minikube Docker environment...
+            	set "MINIKUBE_HOME=C:\\Users\\Omkar Dhenge\\.minikube"
+
+            	minikube docker-env --shell cmd > minikube-env.bat
+
+            	echo Generated environment file:
+            	type minikube-env.bat
+
+            	echo Loading Docker environment...
+            	call minikube-env.bat
+
+            	echo Checking Docker connection...
+            	docker info
+
+            	echo Building image...
+            	docker build -t order-service:latest .
+        	'''
+    }
+}
 		
 		stage('Check Kubernetes') {
         	steps {
