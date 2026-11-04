@@ -75,19 +75,26 @@ pipeline {
     }
         }
 		
-        // 5. Deploy to Minikube
-        stage('Deploy') {
-            steps {
-				set "KUBECONFIG=C:/Users/Omkar Dhenge/.kube/config"
-				
-                bat '''
-                    kubectl apply -f src/main/resources/order-service.yaml
-					kubectl apply -f src/main/resources/order-deployment.yaml
-                    kubectl rollout status deployment/order-service --timeout=180s
-                '''
-            }
-        }
+// 5. Deploy to Minikube
+stage('Deploy') {
+    steps {
+        bat '''
+            set "KUBECONFIG=C:/Users/Omkar Dhenge/.kube/config"
+
+            echo Applying Kubernetes Service...
+            kubectl apply -f src/main/resources/order-service.yaml
+
+            echo Applying Kubernetes Deployment...
+            kubectl apply -f src/main/resources/order-deployment.yaml
+
+            echo Waiting for deployment...
+            kubectl rollout status deployment/order-service --timeout=180s
+
+            echo Checking pods...
+            kubectl get pods
+        '''
     }
+}
 
     post {
         success {
