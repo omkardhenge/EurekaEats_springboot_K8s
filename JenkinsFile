@@ -48,9 +48,6 @@ stage('Docker Build') {
             echo Updating Kubernetes context...
             minikube update-context
 
-            echo Starting Minikube...
-            minikube start --profile=minikube --driver=docker
-
             echo Checking cluster...
             minikube status --profile=minikube
             kubectl get nodes
