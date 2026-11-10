@@ -58,20 +58,7 @@ pipeline {
             }
         }
 
-        stage('Check Kubernetes') {
-            steps {
-                bat '''
-                    echo Checking Kubernetes context...
-                    minikube kubectl -p minikube-new -- config current-context
-
-                    echo Checking Kubernetes connection...
-                    minikube kubectl -p minikube-new -- cluster-info
-
-                    echo Checking nodes...
-                    minikube kubectl -p minikube-new -- get nodes
-                '''
-            }
-        }
+        
 
         stage('Deploy Eureka Server') {
             steps {
@@ -84,7 +71,22 @@ pipeline {
 
                     echo Creating Eureka Service...
 
-                    minikube kubectl -p minikube-new -- expose deployment eureka-server --name=eureka-service --port=8761 --target-port=8761 --type=ClusterIP --dry-run=client -o yaml | minikube kubectl -p minikube-new -- apply -f -
+          stage('Check Kubernetes') {
+    		steps {
+        		bat '''
+            		set "KUBECONFIG=C:\\Users\\Omkar Dhenge\\.kube\\config"
+
+            		echo checking kubernetes context...
+            		kubectl --context=minikube-new config current-context
+
+            		echo checking kubernetes connection...
+            		kubectl --context=minikube-new cluster-info
+
+            		echo checking nodes...
+            		kubectl --context=minikube-new get nodes
+        '''
+    }
+}          minikube kubectl -p minikube-new -- expose deployment eureka-server --name=eureka-service --port=8761 --target-port=8761 --type=ClusterIP --dry-run=client -o yaml | minikube kubectl -p minikube-new -- apply -f -
 
                     echo Waiting for Eureka Server...
 
