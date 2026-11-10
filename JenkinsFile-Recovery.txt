@@ -1,0 +1,181 @@
+
+pipeline {
+    agent any
+
+    environment {
+        MINIKUBE_PROFILE = 'minikube-new'
+        MINIKUBE_HOME = 'C:\\Users\\Omkar Dhenge\\.minikube'
+    }
+
+    stages {
+
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+
+        stage('Build') {
+            steps {
+                bat 'mvn clean package -DskipTests'
+            }
+        }
+
+        stage('Test') {
+            steps {
+                bat 'mvn test'
+            }
+
+            post {
+                always {
+                    junit(
+                        testResults: '**/target/surefire-reports/*.xml',
+                        allowEmptyResults: true
+                    )
+                }
+            }
+        }
+
+        stage('Docker Build') {
+            steps {
+                bat '''
+                    echo Checking new Minikube cluster...
+                    minikube status -p minikube-new
+
+                    echo Configuring Docker for minikube-new...
+                    minikube -p minikube-new docker-env --shell cmd > minikube-new-env.bat
+
+                    call minikube-new-env.bat
+
+                    echo Checking Docker...
+                    docker info
+
+                    echo Building Order Service image...
+                    docker build -t order-service:latest .
+
+                    echo Checking application images...
+                    docker images
+                '''
+            }
+        }
+
+        stage('Check Kubernetes') {
+            steps {
+                bat '''
+                    echo Checking Kubernetes context...
+                    minikube kubectl -p minikube-new -- config current-context
+
+                    echo Checking Kubernetes connection...
+                    minikube kubectl -p minikube-new -- cluster-info
+
+                    echo Checking nodes...
+                    minikube kubectl -p minikube-new -- get nodes
+                '''
+            }
+        }
+
+        stage('Deploy Eureka Server') {
+            steps {
+                bat '''
+                    echo Creating Eureka Server Deployment...
+
+                    minikube kubectl -p minikube-new -- create deployment eureka-server --image=eureka-server:latest --port=8761 --replicas=1 --dry-run=client -o yaml | minikube kubectl -p minikube-new -- apply -f -
+
+                    minikube kubectl -p minikube-new -- set env deployment/eureka-server SERVER_PORT=8761
+
+                    echo Creating Eureka Service...
+
+                    minikube kubectl -p minikube-new -- expose deployment eureka-server --name=eureka-service --port=8761 --target-port=8761 --type=ClusterIP --dry-run=client -o yaml | minikube kubectl -p minikube-new -- apply -f -
+
+                    echo Waiting for Eureka Server...
+
+                    minikube kubectl -p minikube-new -- rollout status deployment/eureka-server --timeout=180s
+                '''
+            }
+        }
+
+        stage('Deploy Review Service') {
+            steps {
+                bat '''
+                    echo Creating Review Service Deployment...
+
+                    minikube kubectl -p minikube-new -- create deployment review-service --image=review-service:latest --port=8082 --replicas=1 --dry-run=client -o yaml | minikube kubectl -p minikube-new -- apply -f -
+
+                    minikube kubectl -p minikube-new -- set env deployment/review-service SPRING_PROFILES_ACTIVE=dev SERVER_PORT=8082
+
+                    echo Creating Review Service Kubernetes Service...
+
+                    minikube kubectl -p minikube-new -- expose deployment review-service --name=review-service --port=8082 --target-port=8082 --type=ClusterIP --dry-run=client -o yaml | minikube kubectl -p minikube-new -- apply -f -
+
+                    echo Waiting for Review Service...
+
+                    minikube kubectl -p minikube-new -- rollout status deployment/review-service --timeout=180s
+                '''
+            }
+        }
+
+        stage('Deploy Order Service') {
+            steps {
+                bat '''
+                    echo Applying Order Service Kubernetes Service...
+
+                    minikube kubectl -p minikube-new -- apply -f src/main/resources/order-service.yaml
+
+                    echo Applying Order Service Deployment...
+
+                    minikube kubectl -p minikube-new -- apply -f src/main/resources/order-deployment.yaml
+
+                    echo Waiting for Order Service...
+
+                    minikube kubectl -p minikube-new -- rollout status deployment/order-service --timeout=180s
+                '''
+            }
+        }
+
+        stage('Enable Autoscaling') {
+            steps {
+                bat '''
+                    echo Enabling Metrics Server...
+
+                    minikube addons enable metrics-server -p minikube-new
+
+                    echo Configuring Order Service HPA...
+
+                    minikube kubectl -p minikube-new -- autoscale deployment order-service --cpu-percent=50 --min=1 --max=3 --dry-run=client -o yaml | minikube kubectl -p minikube-new -- apply -f -
+                '''
+            }
+        }
+
+        stage('Verify Deployment') {
+            steps {
+                bat '''
+                    echo Checking all deployments...
+
+                    minikube kubectl -p minikube-new -- get deployments
+
+                    echo Checking all pods...
+
+                    minikube kubectl -p minikube-new -- get pods -o wide
+
+                    echo Checking Kubernetes services...
+
+                    minikube kubectl -p minikube-new -- get services
+
+                    echo Checking HPA...
+
+                    minikube kubectl -p minikube-new -- get hpa
+                '''
+            }
+        }
+    }
+
+    post {
+        success {
+            echo 'Eureka Server, Review Service and Order Service deployment completed successfully!'
+        }
+
+        failure {
+            echo 'Pipeline failed. Check the Jenkins console output and identify the failed stage.'
+        }
+    }
+}

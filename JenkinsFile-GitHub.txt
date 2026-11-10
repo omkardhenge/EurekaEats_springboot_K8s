@@ -1,0 +1,176 @@
+
+pipeline {
+
+    agent any
+
+    environment {
+        MINIKUBE_PROFILE = 'minikube-new'
+        MINIKUBE_HOME = 'C:\\Users\\Omkar Dhenge\\.minikube'
+        KUBECONFIG = 'C:\\Users\\Omkar Dhenge\\.kube\\config'
+    }
+
+    stages {
+
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+
+        stage('Build') {
+            steps {
+                bat 'mvn clean package -DskipTests'
+            }
+        }
+
+        stage('Test') {
+            steps {
+                bat 'mvn test'
+            }
+            post {
+                always {
+                    junit(
+                        testResults: '**/target/surefire-reports/*.xml',
+                        allowEmptyResults: true
+                    )
+                }
+            }
+        }
+
+        stage('Docker Build') {
+            steps {
+                bat '''
+                    echo Checking Minikube...
+
+                    minikube status -p minikube-new
+
+                    echo Configuring Docker environment...
+
+                    minikube -p minikube-new docker-env --shell cmd > minikube-env.bat
+
+                    call minikube-env.bat
+
+                    echo Checking Docker...
+
+                    docker info
+
+                    echo Building Order Service image...
+
+                    docker build -t order-service:latest .
+
+                    echo Checking application images...
+
+                    docker images
+                '''
+            }
+        }
+
+        stage('Check Kubernetes') {
+            steps {
+                bat '''
+                    echo Checking Kubernetes context...
+
+                    kubectl --context=minikube-new config current-context
+
+                    echo Checking Kubernetes connection...
+
+                    kubectl --context=minikube-new cluster-info
+
+                    echo Checking nodes...
+
+                    kubectl --context=minikube-new get nodes
+                '''
+            }
+        }
+
+        stage('Deploy') {
+            steps {
+                bat '''
+
+                    echo Applying Eureka Server Deployment...
+
+                    kubectl --context=minikube-new apply -f src/main/resources/eureka-deployment.yaml
+
+                    echo Applying Eureka Server Service...
+
+                    kubectl --context=minikube-new apply -f src/main/resources/eureka-service.yaml
+
+                    echo Waiting for Eureka Server...
+
+                    kubectl --context=minikube-new rollout status deployment/eureka-server --timeout=180s
+
+
+                    echo Applying Review Service Deployment...
+
+                    kubectl --context=minikube-new apply -f src/main/resources/review-deployment.yaml
+
+                    echo Applying Review Service Kubernetes Service...
+
+                    kubectl --context=minikube-new apply -f src/main/resources/review-service.yaml
+
+                    echo Waiting for Review Service...
+
+                    kubectl --context=minikube-new rollout status deployment/review-service --timeout=180s
+
+
+                    echo Applying Order Service Kubernetes Service...
+
+                    kubectl --context=minikube-new apply -f src/main/resources/order-service.yaml
+
+                    echo Applying Order Service Deployment...
+
+                    kubectl --context=minikube-new apply -f src/main/resources/order-deployment.yaml
+
+                    echo Waiting for Order Service...
+
+                    kubectl --context=minikube-new rollout status deployment/order-service --timeout=180s
+
+
+                    echo Checking all pods...
+
+                    kubectl --context=minikube-new get pods -o wide
+
+                    echo Checking all services...
+
+                    kubectl --context=minikube-new get services
+
+                '''
+            }
+        }
+
+        stage('Verify Deployment') {
+            steps {
+                bat '''
+                    echo Checking deployments...
+
+                    kubectl --context=minikube-new get deployments
+
+                    echo Checking pods...
+
+                    kubectl --context=minikube-new get pods -o wide
+
+                    echo Checking services...
+
+                    kubectl --context=minikube-new get services
+                    
+                    kubectl --context=minikube-new apply -f src/main/resources/eureka-deployment.yaml
+					kubectl --context=minikube-new apply -f src/main/resources/eureka-service.yaml
+
+					kubectl --context=minikube-new apply -f src/main/resources/review-deployment.yaml
+					kubectl --context=minikube-new apply -f src/main/resources/review-service.yaml
+
+                '''
+            }
+        }
+    }
+
+    post {
+        success {
+            echo 'Eureka Server, Review Service and Order Service deployed successfully!'
+        }
+
+        failure {
+            echo 'Pipeline failed. Check Jenkins console output.'
+        }
+    }
+}
