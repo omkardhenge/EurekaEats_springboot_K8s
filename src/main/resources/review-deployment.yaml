@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+apiVersion: apps/v1
+kind: Deployment
+
+metadata:
+  name: review-service
+
+spec:
+  replicas: 1
+
+  selector:
+    matchLabels:
+      app: review-service
+
+  template:
+    metadata:
+      labels:
+        app: review-service
+
+    spec:
+      containers:
+        - name: review-service
+          image: review-service:latest
+          imagePullPolicy: Never
+
+          ports:
+            - containerPort: 8082
+
+          env:
+            - name: SPRING_PROFILES_ACTIVE
+              value: "dev"
+
+            - name: SERVER_PORT
+              value: "8082"
+
+            - name: EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
+              value: "http://eureka-service:8761/eureka/"
