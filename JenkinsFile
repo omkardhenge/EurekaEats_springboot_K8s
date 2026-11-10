@@ -152,6 +152,12 @@ pipeline {
                     echo Checking services...
 
                     kubectl --context=minikube-new get services
+                    
+                    kubectl --context=minikube-new apply -f src/main/resources/eureka-deployment.yaml
+					kubectl --context=minikube-new apply -f src/main/resources/eureka-service.yaml
+
+					kubectl --context=minikube-new apply -f src/main/resources/review-deployment.yaml
+					kubectl --context=minikube-new apply -f src/main/resources/review-service.yaml
 
                 '''
             }
