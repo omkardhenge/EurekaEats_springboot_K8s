@@ -1,9 +1,11 @@
+
 pipeline {
     agent any
 
     environment {
         MINIKUBE_PROFILE = 'minikube-new'
         MINIKUBE_HOME = 'C:\\Users\\Omkar Dhenge\\.minikube'
+        KUBECONFIG = 'C:\\Users\\Omkar Dhenge\\.kube\\config'
     }
 
     stages {
@@ -24,7 +26,6 @@ pipeline {
             steps {
                 bat 'mvn test'
             }
-
             post {
                 always {
                     junit(
@@ -43,7 +44,6 @@ pipeline {
 
                     echo Configuring Docker for minikube-new...
                     minikube -p minikube-new docker-env --shell cmd > minikube-new-env.bat
-
                     call minikube-new-env.bat
 
                     echo Checking Docker...
@@ -58,39 +58,36 @@ pipeline {
             }
         }
 
-        
+        stage('Check Kubernetes') {
+            steps {
+                bat '''
+                    echo Checking Kubernetes context...
+                    kubectl --context=minikube-new config current-context
+
+                    echo Checking Kubernetes connection...
+                    kubectl --context=minikube-new cluster-info
+
+                    echo Checking nodes...
+                    kubectl --context=minikube-new get nodes
+                '''
+            }
+        }
 
         stage('Deploy Eureka Server') {
             steps {
                 bat '''
                     echo Creating Eureka Server Deployment...
 
-                    minikube kubectl -p minikube-new -- create deployment eureka-server --image=eureka-server:latest --port=8761 --replicas=1 --dry-run=client -o yaml | minikube kubectl -p minikube-new -- apply -f -
+                    kubectl --context=minikube-new create deployment eureka-server --image=eureka-server:latest --replicas=1 --dry-run=client -o yaml > eureka-deployment.yaml
 
-                    minikube kubectl -p minikube-new -- set env deployment/eureka-server SERVER_PORT=8761
+                    kubectl --context=minikube-new patch deployment eureka-server --type=strategic -p "{\\"spec\\":{\\"template\\":{\\"spec\\":{\\"containers\\":[{\\"name\\":\\"eureka-server\\",\\"imagePullPolicy\\":\\"Never\\",\\"ports\\":[{\\"containerPort\\":8761}],\\"env\\":[{\\"name\\":\\"SERVER_PORT\\",\\"value\\":\\"8761\\"}]}]}}}}"
 
                     echo Creating Eureka Service...
 
-          stage('Check Kubernetes') {
-    		steps {
-        		bat '''
-            		set "KUBECONFIG=C:\\Users\\Omkar Dhenge\\.kube\\config"
-
-            		echo checking kubernetes context...
-            		kubectl --context=minikube-new config current-context
-
-            		echo checking kubernetes connection...
-            		kubectl --context=minikube-new cluster-info
-
-            		echo checking nodes...
-            		kubectl --context=minikube-new get nodes
-        '''
-    }
-}          minikube kubectl -p minikube-new -- expose deployment eureka-server --name=eureka-service --port=8761 --target-port=8761 --type=ClusterIP --dry-run=client -o yaml | minikube kubectl -p minikube-new -- apply -f -
+                    kubectl --context=minikube-new expose deployment eureka-server --name=eureka-service --port=8761 --target-port=8761 --type=ClusterIP
 
                     echo Waiting for Eureka Server...
-
-                    minikube kubectl -p minikube-new -- rollout status deployment/eureka-server --timeout=180s
+                    kubectl --context=minikube-new rollout status deployment/eureka-server --timeout=180s
                 '''
             }
         }
@@ -100,17 +97,16 @@ pipeline {
                 bat '''
                     echo Creating Review Service Deployment...
 
-                    minikube kubectl -p minikube-new -- create deployment review-service --image=review-service:latest --port=8082 --replicas=1 --dry-run=client -o yaml | minikube kubectl -p minikube-new -- apply -f -
+                    kubectl --context=minikube-new create deployment review-service --image=review-service:latest --replicas=1 --dry-run=client -o yaml > review-deployment.yaml
 
-                    minikube kubectl -p minikube-new -- set env deployment/review-service SPRING_PROFILES_ACTIVE=dev SERVER_PORT=8082
+                    kubectl --context=minikube-new patch deployment review-service --type=strategic -p "{\\"spec\\":{\\"template\\":{\\"spec\\":{\\"containers\\":[{\\"name\\":\\"review-service\\",\\"imagePullPolicy\\":\\"Never\\",\\"ports\\":[{\\"containerPort\\":8082}],\\"env\\":[{\\"name\\":\\"SPRING_PROFILES_ACTIVE\\",\\"value\\":\\"dev\\"},{\\"name\\":\\"SERVER_PORT\\",\\"value\\":\\"8082\\"}]}]}}}}"
 
                     echo Creating Review Service Kubernetes Service...
 
-                    minikube kubectl -p minikube-new -- expose deployment review-service --name=review-service --port=8082 --target-port=8082 --type=ClusterIP --dry-run=client -o yaml | minikube kubectl -p minikube-new -- apply -f -
+                    kubectl --context=minikube-new expose deployment review-service --name=review-service --port=8082 --target-port=8082 --type=ClusterIP
 
                     echo Waiting for Review Service...
-
-                    minikube kubectl -p minikube-new -- rollout status deployment/review-service --timeout=180s
+                    kubectl --context=minikube-new rollout status deployment/review-service --timeout=180s
                 '''
             }
         }
@@ -119,16 +115,13 @@ pipeline {
             steps {
                 bat '''
                     echo Applying Order Service Kubernetes Service...
-
-                    minikube kubectl -p minikube-new -- apply -f src/main/resources/order-service.yaml
+                    kubectl --context=minikube-new apply -f src/main/resources/order-service.yaml
 
                     echo Applying Order Service Deployment...
-
-                    minikube kubectl -p minikube-new -- apply -f src/main/resources/order-deployment.yaml
+                    kubectl --context=minikube-new apply -f src/main/resources/order-deployment.yaml
 
                     echo Waiting for Order Service...
-
-                    minikube kubectl -p minikube-new -- rollout status deployment/order-service --timeout=180s
+                    kubectl --context=minikube-new rollout status deployment/order-service --timeout=180s
                 '''
             }
         }
@@ -137,12 +130,10 @@ pipeline {
             steps {
                 bat '''
                     echo Enabling Metrics Server...
-
                     minikube addons enable metrics-server -p minikube-new
 
                     echo Configuring Order Service HPA...
-
-                    minikube kubectl -p minikube-new -- autoscale deployment order-service --cpu-percent=50 --min=1 --max=3 --dry-run=client -o yaml | minikube kubectl -p minikube-new -- apply -f -
+                    kubectl --context=minikube-new autoscale deployment order-service --cpu-percent=50 --min=1 --max=3 --dry-run=client -o yaml | kubectl --context=minikube-new apply -f -
                 '''
             }
         }
@@ -151,20 +142,16 @@ pipeline {
             steps {
                 bat '''
                     echo Checking all deployments...
-
-                    minikube kubectl -p minikube-new -- get deployments
+                    kubectl --context=minikube-new get deployments
 
                     echo Checking all pods...
-
-                    minikube kubectl -p minikube-new -- get pods -o wide
+                    kubectl --context=minikube-new get pods -o wide
 
                     echo Checking Kubernetes services...
-
-                    minikube kubectl -p minikube-new -- get services
+                    kubectl --context=minikube-new get services
 
                     echo Checking HPA...
-
-                    minikube kubectl -p minikube-new -- get hpa
+                    kubectl --context=minikube-new get hpa
                 '''
             }
         }
