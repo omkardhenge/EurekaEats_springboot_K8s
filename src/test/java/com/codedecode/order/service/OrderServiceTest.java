@@ -6,7 +6,7 @@ import com.codedecode.order.dto.OrderDTOFromFE;
 import com.codedecode.order.dto.ReviewDTO;
 import com.codedecode.order.entity.Order;
 import com.codedecode.order.repo.OrderRepo;
-
+import com.codedecode.order.kafka.OrderEventProducer;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
@@ -30,8 +30,11 @@ class OrderServiceTest {
 
     @InjectMocks
     private OrderService orderService;
+    
+    @Mock
+    private OrderEventProducer orderEventProducer;
 
-
+    
     // Test 1: Save Order Successfully
     @Test
     void saveOrderInDb_shouldReturnOrderDTO() {
