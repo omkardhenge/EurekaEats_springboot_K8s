@@ -56,6 +56,8 @@
 	                    echo Building Order Service image...
 	
 	                    docker build -t order-service:o2 .
+						
+	                    docker build --no-cache -t eureka-server:latest .
 	
 	                    echo Checking application images...
 	
