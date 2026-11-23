@@ -5,5 +5,3 @@ spring:
   application:
     name: order-service
 
-  profiles:
-    active: dev
