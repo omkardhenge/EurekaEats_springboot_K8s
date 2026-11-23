@@ -55,7 +55,7 @@
 	
 	                    echo Building Order Service image...
 	
-	                    docker build -t order-service:latest .
+	                    docker build -t order-service:o2 .
 	
 	                    echo Checking application images...
 	
